@@ -5,11 +5,11 @@ ENV GO111MODULE=on \
     GOOS=linux \
     GOARCH=amd64
 
-COPY . /go/src/github.com/guitmz/n26
-WORKDIR /go/src/github.com/guitmz/n26
+COPY . /go/src/github.com/jjbeto/n26
+WORKDIR /go/src/github.com/jjbeto/n26
 
 RUN go mod download
-RUN go install -v -a -ldflags '-s -w -extldflags "-static"' github.com/guitmz/n26/cmd/n26
+RUN go install -v -a -ldflags '-s -w -extldflags "-static"' github.com/jjbeto/n26/cmd/n26
 
 # final stage
 FROM alpine

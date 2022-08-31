@@ -1,6 +1,6 @@
-module github.com/guitmz/n26
+module github.com/jjbeto/n26
 
-go 1.14
+go 1.19
 
 require (
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c

@@ -1,16 +1,16 @@
-[![Build Status](https://travis-ci.org/guitmz/n26.svg?branch=master)](https://travis-ci.org/guitmz/n26) [![Go Report Card](https://goreportcard.com/badge/github.com/guitmz/n26)](https://goreportcard.com/report/github.com/guitmz/n26) [![](https://images.microbadger.com/badges/image/guitmz/n26.svg)](https://microbadger.com/images/guitmz/n26 "Get your own image badge on microbadger.com")
+[![Go Report Card](https://goreportcard.com/badge/github.com/jjbeto/n26)](https://goreportcard.com/report/github.com/jjbeto/n26)
 
 # n26
 Go API and CLI to get information of your N26 account
 
 # Installation
-- macOS: Available via Homebrew. Just run `brew install guitmz/tools/n26`
+- macOS: Available via Homebrew. Just run `brew install jjbeto/tap/n26`
 - Linux: You can manually build this project or download a binary release.
 
 You can also install with `go get -u github.com/jjbeto/n26/cmd/n26` (make sure you have your Go env setup correctly). 
 
 # Docker
-A Dockerfile is also provided and the prebuilt image is available for pulling: `docker pull guitmz/n26` or `docker pull guitmz/n26:DESIRED_TAG`
+A Dockerfile is also provided and the prebuilt image is available for pulling: `docker pull jjbeto/n26` or `docker pull jjbeto/n26:DESIRED_TAG`
 
 You can run it like:
 

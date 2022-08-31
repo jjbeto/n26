@@ -27,21 +27,20 @@ archives:
 
 release:
   github:
-    owner: guitmz
+    owner: jjbeto
     name: n26
   name_template: "{{.Version}}"
 
 checksum:
-  name_template: "checksums.txt"
+  name_template: checksums.txt
 
 brews:
   -
     name: n26
     tap:
-      owner: guitmz
+      owner: jjbeto
       name: homebrew-tools
-    homepage: "https://github.com/guitmz/n26"
-    description: "CLI tool for N26 Bank"
+    homepage: https://github.com/jjbeto/n26
+    description: CLI tool for N26 Bank
     test: |
       system "#{bin}/n26", "--version"
-

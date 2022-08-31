@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/guitmz/n26"
+	"github.com/jjbeto/n26"
 )
 
 type jsonWriter struct{}
