@@ -25,6 +25,8 @@ jobs:
         with:
           images: ${{ secrets.DOCKER_HUB_USERNAME }}/n26
           tags: |
+            # set latest tag for default branch
+            type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
