@@ -1,13 +1,14 @@
 package n26
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 
 	"golang.org/x/oauth2"
 )
@@ -234,11 +235,11 @@ func NewClient(a Auth) (*Client, error) {
 	tokenSource := &TokenSource{
 		AccessToken: token.AccessToken,
 	}
-	oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
+	oauthClient := oauth2.NewClient(context.Background(), tokenSource)
 	return (*Client)(oauthClient), nil
 }
 
-func (c *Client) n26RawRequest(requestMethod, endpoint string, params map[string]string, callback func(io.Reader) error) error {
+func (client *Client) n26RawRequest(requestMethod, endpoint string, params map[string]string, callback func(io.Reader) error) error {
 	var req *http.Request
 	var err error
 
@@ -255,17 +256,17 @@ func (c *Client) n26RawRequest(requestMethod, endpoint string, params map[string
 		check(err)
 	}
 
-	res, err := (*http.Client)(c).Do(req)
+	res, err := (*http.Client)(client).Do(req)
 	check(err)
 	defer res.Body.Close()
 	return callback(res.Body)
 }
 
-func (c *Client) n26Request(requestMethod, endpoint string, params map[string]string) []byte {
+func (client *Client) n26Request(requestMethod, endpoint string, params map[string]string) []byte {
 	var body []byte
-	err := c.n26RawRequest(requestMethod, endpoint, params, func(r io.Reader) error {
+	err := client.n26RawRequest(requestMethod, endpoint, params, func(r io.Reader) error {
 		var err error
-		body, err = ioutil.ReadAll(r)
+		body, err = io.ReadAll(r)
 		return err
 	})
 	check(err)
@@ -280,91 +281,93 @@ func mapToQuery(params map[string]string) url.Values {
 	return values
 }
 
-func (auth *Client) GetBalance(retType string) (string, *Balance) {
-	body := auth.n26Request(http.MethodGet, "/api/accounts", nil)
+func (client *Client) GetBalance(retType string) (string, *Balance) {
+	body := client.n26Request(http.MethodGet, "/api/accounts", nil)
 	balance := &Balance{}
 	check(json.Unmarshal(body, &balance))
-	identedJSON, _ := json.MarshalIndent(&balance, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&balance, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), balance
+		return string(prettyJSON), balance
 	}
 	return "", balance
 }
 
-func (auth *Client) GetInfo(retType string) (string, *PersonalInfo) {
-	body := auth.n26Request(http.MethodGet, "/api/me", nil)
+func (client *Client) GetInfo(retType string) (string, *PersonalInfo) {
+	body := client.n26Request(http.MethodGet, "/api/me", nil)
 	info := &PersonalInfo{}
 	check(json.Unmarshal(body, &info))
-	identedJSON, _ := json.MarshalIndent(&info, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&info, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), info
+		return string(prettyJSON), info
 	}
 	return "", info
 }
 
-func (auth *Client) GetStatus(retType string) (string, *Statuses) {
-	body := auth.n26Request(http.MethodGet, "/api/me/statuses", nil)
+func (client *Client) GetStatus(retType string) (string, *Statuses) {
+	body := client.n26Request(http.MethodGet, "/api/me/statuses", nil)
 	status := &Statuses{}
 	check(json.Unmarshal(body, &status))
-	identedJSON, _ := json.MarshalIndent(&status, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&status, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), status
+		return string(prettyJSON), status
 	}
 	return "", status
 }
 
-func (auth *Client) GetAddresses(retType string) (string, *Addresses) {
-	body := auth.n26Request(http.MethodGet, "/api/addresses", nil)
+func (client *Client) GetAddresses(retType string) (string, *Addresses) {
+	body := client.n26Request(http.MethodGet, "/api/addresses", nil)
 	addresses := &Addresses{}
 	check(json.Unmarshal(body, &addresses))
-	identedJSON, _ := json.MarshalIndent(&addresses, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&addresses, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), addresses
+		return string(prettyJSON), addresses
 	}
 	return "", addresses
 }
 
-func (auth *Client) GetCards(retType string) (string, *Cards) {
-	body := auth.n26Request(http.MethodGet, "/api/v2/cards", nil)
+func (client *Client) GetCards(retType string) (string, *Cards) {
+	body := client.n26Request(http.MethodGet, "/api/v2/cards", nil)
 	cards := &Cards{}
 	check(json.Unmarshal(body, &cards))
-	identedJSON, _ := json.MarshalIndent(&cards, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&cards, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), cards
+		return string(prettyJSON), cards
 	}
 	return "", cards
 }
 
-func (auth *Client) GetLimits(retType string) (string, *Limits) {
-	body := auth.n26Request(http.MethodGet, "/api/settings/account/limits", nil)
+func (client *Client) GetLimits(retType string) (string, *Limits) {
+	body := client.n26Request(http.MethodGet, "/api/settings/account/limits", nil)
 	limits := &Limits{}
 	check(json.Unmarshal(body, &limits))
-	identedJSON, _ := json.MarshalIndent(&limits, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&limits, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), limits
+		return string(prettyJSON), limits
 	}
 	return "", limits
 }
 
-func (auth *Client) GetContacts(retType string) (string, *Contacts) {
-	body := auth.n26Request(http.MethodGet, "/api/smrt/contacts", nil)
+func (client *Client) GetContacts(retType string) (string, *Contacts) {
+	body := client.n26Request(http.MethodGet, "/api/smrt/contacts", nil)
 	contacts := &Contacts{}
 	check(json.Unmarshal(body, &contacts))
-	identedJSON, _ := json.MarshalIndent(&contacts, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&contacts, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), contacts
+		return string(prettyJSON), contacts
 	}
 	return "", contacts
 }
 
-func (auth *Client) GetLastTransactions(limit string) (*Transactions, error) {
-	return auth.GetTransactions(TimeStamp{}, TimeStamp{}, limit)
+func (client *Client) GetLastTransactions(limit string) (*Transactions, error) {
+	return client.GetTransactions(TimeStamp{}, TimeStamp{}, limit)
 }
 
-// Get transactions for the given time window.
-// Use the zero values for the time stamps if no restrictions are
-// desired (use the defaults on the server)
-func (auth *Client) GetTransactions(from, to TimeStamp, limit string) (*Transactions, error) {
+/*
+GetTransactions Get transactions for the given time window.
+Use the zero values for the time stamps if no restrictions are
+desired (use the defaults on the server)
+*/
+func (client *Client) GetTransactions(from, to TimeStamp, limit string) (*Transactions, error) {
 	params := map[string]string{
 		"limit": limit,
 	}
@@ -373,7 +376,7 @@ func (auth *Client) GetTransactions(from, to TimeStamp, limit string) (*Transact
 		params["from"] = fmt.Sprint(from.AsMillis())
 		params["to"] = fmt.Sprint(to.AsMillis())
 	}
-	body := auth.n26Request(http.MethodGet, "/api/smrt/transactions", params)
+	body := client.n26Request(http.MethodGet, "/api/smrt/transactions", params)
 	transactions := &Transactions{}
 	if err := json.Unmarshal(body, &transactions); err != nil {
 		return nil, err
@@ -381,52 +384,55 @@ func (auth *Client) GetTransactions(from, to TimeStamp, limit string) (*Transact
 	return transactions, nil
 }
 
-// Get transactions for the given time window as N26 CSV file. Stored as 'smrt_statement.csv'
-func (auth *Client) GetSmartStatementCsv(from, to TimeStamp, reader func(io.Reader) error) error {
+// GetSmartStatementCsv Get transactions for the given time window as N26 CSV file. Stored as 'smrt_statement.csv'
+func (client *Client) GetSmartStatementCsv(from, to TimeStamp, reader func(io.Reader) error) error {
 	//Filter is applied only if both values are set
 	if from.IsZero() || to.IsZero() {
-		return errors.New("Start and end time must be set")
+		return errors.New("start and end time must be set")
 	}
-	return auth.n26RawRequest(http.MethodGet, fmt.Sprintf("/api/smrt/reports/%v/%v/statements", from.AsMillis(), to.AsMillis()), nil, reader)
+	return client.n26RawRequest(http.MethodGet, fmt.Sprintf("/api/smrt/reports/%v/%v/statements", from.AsMillis(), to.AsMillis()), nil, reader)
 }
 
-func (auth *Client) GetStatements(retType string) (string, *Statements) {
-	body := auth.n26Request(http.MethodGet, "/api/statements", nil)
+func (client *Client) GetStatements(retType string) (string, *Statements) {
+	body := client.n26Request(http.MethodGet, "/api/statements", nil)
 	statements := &Statements{}
 	check(json.Unmarshal(body, &statements))
-	identedJSON, _ := json.MarshalIndent(&statements, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&statements, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), statements
+		return string(prettyJSON), statements
 	}
 	return "", statements
 }
 
-func (auth *Client) GetStatementPDF(ID string) {
-	body := auth.n26Request(http.MethodGet, fmt.Sprintf("/api/statements/%s", ID), nil)
-	ioutil.WriteFile(
+func (client *Client) GetStatementPDF(ID string) {
+	body := client.n26Request(http.MethodGet, fmt.Sprintf("/api/statements/%s", ID), nil)
+	err := os.WriteFile(
 		fmt.Sprintf("%s.pdf", ID),
 		body,
 		0750,
 	)
+	if err != nil {
+		check(err)
+	}
 }
 
-func (auth *Client) BlockCard(ID string) {
-	_ = auth.n26Request(http.MethodPost, fmt.Sprintf("/api/cards/%s/block", ID), nil)
+func (client *Client) BlockCard(ID string) {
+	_ = client.n26Request(http.MethodPost, fmt.Sprintf("/api/cards/%s/block", ID), nil)
 	fmt.Printf("\nYour card with ID: %s is DISABLED\n\n", ID)
 }
 
-func (auth *Client) UnblockCard(ID string) {
-	_ = auth.n26Request(http.MethodPost, fmt.Sprintf("/api/cards/%s/unblock", ID), nil)
+func (client *Client) UnblockCard(ID string) {
+	_ = client.n26Request(http.MethodPost, fmt.Sprintf("/api/cards/%s/unblock", ID), nil)
 	fmt.Printf("\nYour card with ID: %s is ACTIVE\n\n", ID)
 }
 
-func (auth *Client) GetSpaces(retType string) (string, *Spaces) {
-	body := auth.n26Request(http.MethodGet, "/api/spaces", nil)
+func (client *Client) GetSpaces(retType string) (string, *Spaces) {
+	body := client.n26Request(http.MethodGet, "/api/spaces", nil)
 	spaces := &Spaces{}
 	check(json.Unmarshal(body, &spaces))
-	identedJSON, _ := json.MarshalIndent(&spaces, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(&spaces, "", "  ")
 	if retType == "json" {
-		return string(identedJSON), spaces
+		return string(prettyJSON), spaces
 	}
 	return "", spaces
 }

@@ -144,14 +144,6 @@ func main() {
 				return nil
 			},
 		},
-		// {
-		// 	Name:  "barzahlen",
-		// 	Usage: "barzahlen information",
-		// 	Action: func(c *cli.Context) error {
-		// 		API.n26Request("/api/barzahlen", &Barzahlen{})
-		// 		return nil
-		// 	},
-		// },
 		{
 			Name:  "cards",
 			Usage: "list your cards information",
@@ -191,7 +183,7 @@ func main() {
 				if prettyJSON != "" {
 					fmt.Println(prettyJSON)
 				} else {
-					data := [][]string{}
+					var data [][]string
 					for _, limit := range *limits {
 						amount := strconv.FormatFloat(limit.Amount, 'f', -1, 64)
 						data = append(data,
@@ -216,7 +208,7 @@ func main() {
 				if prettyJSON != "" {
 					fmt.Println(prettyJSON)
 				} else {
-					data := [][]string{}
+					var data [][]string
 					for _, contact := range *contacts {
 						data = append(data,
 							[]string{
